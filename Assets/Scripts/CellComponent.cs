@@ -28,8 +28,8 @@ namespace Checkers
             CallBackEvent(this, false);
         }
 
-        protected override Material GetBaseMaterialForColor()
-            => Resources.Load<Material>($"Materials/{GetColor}CellMaterial");
+        protected override Material GetBaseMaterialForColor(ColorType color)
+            => Resources.Load<Material>($"Materials/{color}CellMaterial");
 
         /// <summary>
         /// Конфигурирование связей клеток

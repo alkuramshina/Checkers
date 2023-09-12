@@ -45,9 +45,11 @@
      <Compile Include="Assets\Scripts\ChipComponent.cs" />
      <Compile Include="Assets\Scripts\BaseClickComponent.cs" />
      <Compile Include="Assets\Scripts\Board\BoardGenerator.cs" />
+     <Compile Include="Assets\Scripts\Camera\CameraMover.cs" />
      <Folder Include="Assets" />
      <Folder Include="Assets\Scenes" />
      <Folder Include="Assets\Resources" />
+     <Folder Include="Assets\Scripts\Camera" />
      <Folder Include="Assets\Scripts" />
      <Folder Include="Assets\Resources\Materials" />
      <Folder Include="Assets\Resources\Prefabs" />

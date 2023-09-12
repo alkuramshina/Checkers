@@ -15,7 +15,7 @@ namespace Checkers
             CallBackEvent((CellComponent)Pair, false);
         }
         
-        protected override Material GetBaseMaterialForColor()
-            => Resources.Load<Material>($"Materials/{GetColor}ChipMaterial");
+        protected override Material GetBaseMaterialForColor(ColorType color)
+            => Resources.Load<Material>($"Materials/{color}ChipMaterial");
     }
 }

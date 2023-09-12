@@ -23,6 +23,8 @@ namespace Checkers
 
             _color = color;
         }
+        
+        protected abstract Material GetBaseMaterialForColor(ColorType color);
 
         /// <summary>
         /// Возвращает или устанавливает пару игровому объекту
@@ -66,14 +68,7 @@ namespace Checkers
 		protected virtual void Start()
         {
             _mesh = GetComponent<MeshRenderer>();
-           SetBaseMaterial();
-        }
-
-        protected abstract Material GetBaseMaterialForColor();
-        
-        private void SetBaseMaterial()
-        {
-            _mesh.sharedMaterial = GetBaseMaterialForColor();
+            _mesh.sharedMaterial = GetBaseMaterialForColor(GetColor);
         }
 	}
 

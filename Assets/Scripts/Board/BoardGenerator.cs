@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Checkers
 {
@@ -13,7 +14,7 @@ namespace Checkers
 
         [SerializeField] private CellComponent cellPrefab;
         [SerializeField] private ChipComponent chipPrefab;
-
+        
         private float CellOffsetX => cellPrefab.transform.localScale.x / 2;
         private float CellOffsetZ => cellPrefab.transform.localScale.z / 2;
 
@@ -29,12 +30,15 @@ namespace Checkers
                     CreateCell(position, currentCellColor);
                     
                     if (currentCellColor == playableCellColor 
+                        // начало доски
                         && 0 <= row && row <= startingChipRows)
                     {
                         CreateChip(position, ColorType.White);
                     } 
-                    else if (currentCellColor == playableCellColor
-                             && rows >= row && row >= rows - startingChipRows)
+                    else 
+                    if (currentCellColor == playableCellColor
+                        // конец доски
+                        && rows >= row && row >= rows - startingChipRows)
                     {
                         CreateChip(position, ColorType.Black);
                     }
