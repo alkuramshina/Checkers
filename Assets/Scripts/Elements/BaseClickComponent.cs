@@ -24,7 +24,13 @@ namespace Checkers
             _color = color;
         }
         
-        protected abstract Material GetBaseMaterialForColor(ColorType color);
+        protected abstract Material GetBaseMaterial();
+        protected abstract Material GetMaterialForSelected();
+
+        protected void SetMaterial(Material material = null)
+        {
+            _mesh.sharedMaterial = material ? material : GetBaseMaterial();
+        }
 
         /// <summary>
         /// Возвращает или устанавливает пару игровому объекту
@@ -41,7 +47,6 @@ namespace Checkers
         /// Событие наведения и сброса наведения на объект
         /// </summary>
         public event FocusEventHandler OnFocusEventHandler;
-
 
         //При навадении на объект мышки, вызывается данный метод
         //При наведении на фишку, должна подсвечиваться клетка под ней
@@ -68,7 +73,18 @@ namespace Checkers
 		protected virtual void Start()
         {
             _mesh = GetComponent<MeshRenderer>();
-            _mesh.sharedMaterial = GetBaseMaterialForColor(GetColor);
+            SetMaterial();
+
+            OnFocusEventHandler += (component, select) =>
+            {
+                component.SetMaterial(select
+                    ? component.GetMaterialForSelected()
+                    : component.GetBaseMaterial());
+                
+                Pair?.SetMaterial(select
+                    ? Pair.GetMaterialForSelected()
+                    : Pair.GetBaseMaterial());
+            };
         }
 	}
 

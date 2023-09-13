@@ -27,13 +27,14 @@ namespace Checkers
         {
             if (Input.GetKeyDown(KeyCode.Space) && !_cameraIsMoving)
             {
-                _cameraIsMoving = true;
                 StartCoroutine(MoveCameraToNextPov());
             }
         }
 
         public IEnumerator MoveCameraToNextPov()
         {
+            _cameraIsMoving = true;
+            
             while (Vector3.Distance(_camera.transform.position, povs[_nextPosition].position) >= 0.01f)
             {
                 _camera.transform.position = Vector3.Lerp(_camera.transform.position,

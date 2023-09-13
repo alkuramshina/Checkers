@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Checkers
@@ -18,36 +18,53 @@ namespace Checkers
         private float CellOffsetX => cellPrefab.transform.localScale.x / 2;
         private float CellOffsetZ => cellPrefab.transform.localScale.z / 2;
 
-        private void Start()
+        public (IEnumerable<CellComponent>, IEnumerable<ChipComponent>) StartGame()
         {
+            if (FindAnyObjectByType<CellComponent>() is not null)
+            {
+                Debug.LogError("Game has already started!");
+            }
+            
             var currentCellColor = ColorType.Black;
+            var cells = new List<CellComponent>();
+            var chips = new List<ChipComponent>();
             
             for (var row = 0; row < rows; row++)
             {
                 for (var column = 0; column < columns; column++)
                 {
                     var position = new Vector3(CellOffsetX + row, 0, CellOffsetZ + column);
-                    CreateCell(position, currentCellColor);
-                    
+                    CellComponent newCell = CreateCell(position, currentCellColor);
+
+                    ChipComponent possibleNewChip = null;
                     if (currentCellColor == playableCellColor 
                         // начало доски
                         && 0 <= row && row <= startingChipRows)
                     {
-                        CreateChip(position, ColorType.White);
+                        possibleNewChip = CreateChip(newCell, ColorType.White);
                     } 
                     else 
                     if (currentCellColor == playableCellColor
                         // конец доски
                         && rows >= row && row >= rows - startingChipRows)
                     {
-                        CreateChip(position, ColorType.Black);
+                        possibleNewChip = CreateChip(newCell, ColorType.Black);
                     }
-
+                    
+                    if (possibleNewChip is not null)
+                    {
+                        newCell.Pair = possibleNewChip;
+                        chips.Add(possibleNewChip);
+                    }
+                    cells.Add(newCell);
+                    
                     currentCellColor = SwapColor(currentCellColor);
                 }
                 
                 currentCellColor = SwapColor(currentCellColor);
             }
+            
+            return (cells, chips);
         }
 
         private static ColorType SwapColor(ColorType currentColor)
@@ -61,10 +78,11 @@ namespace Checkers
             return newCell;
         }
         
-        private ChipComponent CreateChip(Vector3 chipPosition, ColorType color)
+        private ChipComponent CreateChip(CellComponent cell, ColorType color)
         {
-            ChipComponent newChip = Instantiate(chipPrefab, chipPosition, Quaternion.identity, transform);
+            ChipComponent newChip = Instantiate(chipPrefab, cell.transform.position, Quaternion.identity, transform);
             newChip.SetColor(color);
+            newChip.Pair = cell;
 
             return newChip;
         }

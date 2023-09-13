@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -7,8 +6,7 @@ namespace Checkers
 {
     public class CellComponent : BaseClickComponent
     {
-        private Dictionary<NeighborType, CellComponent> _neighbors;
-
+        private Dictionary<NeighborType, CellComponent> _neighbors;     
 
         /// <summary>
         /// Возвращает соседа клетки по указанному направлению
@@ -16,7 +14,6 @@ namespace Checkers
         /// <param name="type">Перечисление направления</param>
         /// <returns>Клетка-сосед или null</returns>
         public CellComponent GetNeighbors(NeighborType type) => _neighbors[type];
-
 
         public override void OnPointerEnter(PointerEventData eventData)
         {
@@ -28,8 +25,11 @@ namespace Checkers
             CallBackEvent(this, false);
         }
 
-        protected override Material GetBaseMaterialForColor(ColorType color)
-            => Resources.Load<Material>($"Materials/{color}CellMaterial");
+        protected override Material GetBaseMaterial()
+            => Resources.Load<Material>($"Materials/{GetColor}CellMaterial");
+        
+        protected override Material GetMaterialForSelected()
+            => Resources.Load<Material>($"Materials/SelectedChipMaterial");
 
         /// <summary>
         /// Конфигурирование связей клеток
@@ -39,7 +39,6 @@ namespace Checkers
             if (_neighbors != null) return;
             _neighbors = neighbors;
 		}
-
 	}
 
     /// <summary>
