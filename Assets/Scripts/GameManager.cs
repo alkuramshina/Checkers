@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Checkers
 {
     public class GameManager: MonoBehaviour
     {
-        private static float chipMovingSpeed = 4f; 
+        private static float chipMovingSpeed = 2f; 
         
         private static ChipComponent _selectedChip;
 
@@ -24,11 +25,10 @@ namespace Checkers
             SetClickHandling(chips);
 
             _cameraMover = FindObjectOfType<CameraMover>();
-
-            PassTheTurn(ColorType.White);
+            _currentPlayerColor = ColorType.White;
         }
         
-        private static void SetFocusHandling(IEnumerable<BaseClickComponent> elements)
+        private void SetFocusHandling(IEnumerable<BaseClickComponent> elements)
         {
             foreach (var boardElement in elements)
             {
@@ -43,7 +43,7 @@ namespace Checkers
             }
         }
         
-        private static void SetClickHandling(IEnumerable<ChipComponent> chips)
+        private void SetClickHandling(IEnumerable<ChipComponent> chips)
         {
             foreach (var chip in chips)
             {
@@ -51,34 +51,30 @@ namespace Checkers
             }
         }
         
-        private static void SetClickHandling(IEnumerable<CellComponent> cells)
+        private void SetClickHandling(IEnumerable<CellComponent> cells)
         {
             foreach (var cell in cells)
             {
-                cell.OnClickEventHandler += MoveChip;
+                cell.OnClickEventHandler += MakeMove;
             }
         }
 
-        private static void MoveChip(BaseClickComponent cell)
+        private void MakeMove(BaseClickComponent cell)
         {
             if (!cell.IsHighlighted || _selectedChip is null)
             {
                 return;
             }
 
-            _selectedChip.transform.position = Vector3.Lerp(_selectedChip.transform.position,
-                cell.transform.position, chipMovingSpeed * Time.deltaTime);
-            _selectedChip.Pair = cell;
-            
+            StartCoroutine(MoveChip(_selectedChip, (CellComponent) cell));
+
             RemoveHighlight(_selectedChip);
             
+            _selectedChip.Pair = cell;
             _selectedChip = null;
-            
-            PassTheTurn();
-           // StartCoroutine(_cameraMover.MoveCameraToNextPov());
         }
 
-        private static void SelectPlayableChip(BaseClickComponent chip)
+        private void SelectPlayableChip(BaseClickComponent chip)
         {
             if (chip.GetColor != _currentPlayerColor)
             {
@@ -109,7 +105,7 @@ namespace Checkers
             _selectedChip = (ChipComponent) chip;
         }
 
-        private static void HighlightNeighborIfExists(CellComponent cell, NeighborType neighborType)
+        private void HighlightNeighborIfExists(CellComponent cell, NeighborType neighborType)
         {
             if (cell.Neighbors[neighborType] is not null 
                 && cell.Neighbors[neighborType].Pair is null)
@@ -118,7 +114,7 @@ namespace Checkers
             }
         }
 
-        private static void RemoveHighlight(ChipComponent chip)
+        private void RemoveHighlight(ChipComponent chip)
         {
             chip.SetHighlighted(false);
                 
@@ -131,11 +127,30 @@ namespace Checkers
             }
         }
 
-        private static void PassTheTurn(ColorType? color = null)
+        private void PassTheTurn()
         {
-            _currentPlayerColor = color ?? BoardGenerator.SwapColor(_currentPlayerColor);
+            _currentPlayerColor = BoardGenerator.SwapColor(_currentPlayerColor);
+            StartCoroutine(_cameraMover.MoveCameraToNextPov());
             Debug.Log(
-                $"Ход у {(color switch { ColorType.White => "белых", ColorType.Black => "черных", _ => "кого-то" })}.");
+                $@"Ход у {(_currentPlayerColor switch
+                { ColorType.White => "белых",
+                    ColorType.Black => "черных",
+                    _ => "кого-то" })}.");
+        }
+
+        private IEnumerator MoveChip(ChipComponent chip, CellComponent cell)
+        {
+            while (Vector3.Distance(chip.transform.position, cell.transform.position) >= 0.01f)
+            {
+                chip.transform.position = Vector3.Lerp(chip.transform.position,
+                    cell.transform.position, chipMovingSpeed * Time.deltaTime);
+
+                yield return null;
+            }
+
+            yield return new WaitForSeconds(2);
+            
+            PassTheTurn();
         }
     }
 }
