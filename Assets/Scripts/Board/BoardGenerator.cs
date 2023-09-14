@@ -18,7 +18,7 @@ namespace Checkers
         private float CellOffsetX => cellPrefab.transform.localScale.x / 2;
         private float CellOffsetZ => cellPrefab.transform.localScale.z / 2;
 
-        public (IEnumerable<CellComponent>, IEnumerable<ChipComponent>) StartGame()
+        public (IEnumerable<CellComponent>, IEnumerable<ChipComponent>) CreateBoard()
         {
             if (FindAnyObjectByType<CellComponent>() is not null)
             {
@@ -34,19 +34,18 @@ namespace Checkers
                 for (var column = 0; column < columns; column++)
                 {
                     var position = new Vector3(CellOffsetX + row, 0, CellOffsetZ + column);
+                    
                     CellComponent newCell = CreateCell(position, currentCellColor);
-
                     ChipComponent possibleNewChip = null;
-                    if (currentCellColor == playableCellColor 
-                        // начало доски
-                        && 0 <= row && row <= startingChipRows)
+                    
+                    // если это начало доски и мы на играбельном цвете - белые шашки
+                    if (currentCellColor == playableCellColor && 0 <= row && row <= startingChipRows)
                     {
                         possibleNewChip = CreateChip(newCell, ColorType.White);
                     } 
                     else 
-                    if (currentCellColor == playableCellColor
-                        // конец доски
-                        && rows >= row && row >= rows - startingChipRows)
+                        // если это конец доски и мы на играбельном цвете - черные шашки
+                    if (currentCellColor == playableCellColor && rows >= row && row >= rows - startingChipRows)
                     {
                         possibleNewChip = CreateChip(newCell, ColorType.Black);
                     }
@@ -56,6 +55,7 @@ namespace Checkers
                         newCell.Pair = possibleNewChip;
                         chips.Add(possibleNewChip);
                     }
+                    
                     cells.Add(newCell);
                     
                     currentCellColor = SwapColor(currentCellColor);
