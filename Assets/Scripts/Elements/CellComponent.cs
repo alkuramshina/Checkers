@@ -7,6 +7,8 @@ namespace Checkers
     public class CellComponent : BaseClickComponent
     {
         public Dictionary<NeighborType, CellComponent> Neighbors { get; private set; }
+        public bool IsEmpty => Pair is null;
+        public bool IsVictorious { get; private set; }
 
         public override void OnPointerEnter(PointerEventData eventData)
         {
@@ -31,7 +33,10 @@ namespace Checkers
 		{
             if (Neighbors != null) return;
             Neighbors = neighbors;
-		}
+            IsVictorious = neighbors[NeighborType.TopLeft] is null && neighbors[NeighborType.TopRight] is null
+                           || neighbors[NeighborType.BottomLeft] is null &&
+                           neighbors[NeighborType.BottomRight] is null;
+        }
 	}
 
     /// <summary>

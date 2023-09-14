@@ -18,7 +18,7 @@ namespace Checkers
         private float CellOffsetX => cellPrefab.transform.localScale.x / 2;
         private float CellOffsetZ => cellPrefab.transform.localScale.z / 2;
 
-        public (IEnumerable<CellComponent>, IEnumerable<ChipComponent>) CreateBoard()
+        public (List<CellComponent>, List<ChipComponent>) CreateBoard()
         {
             if (FindAnyObjectByType<CellComponent>() is not null)
             {
@@ -40,7 +40,7 @@ namespace Checkers
                     ChipComponent possibleNewChip = null;
 
                     // если это начало доски и мы на играбельном цвете - белые шашки
-                    if (currentCellColor == playableCellColor && 0 <= row && row <= startingChipRows)
+                    if (currentCellColor == playableCellColor && 0 <= row && row < startingChipRows)
                     {
                         possibleNewChip = CreateChip(newCell, ColorType.White);
                     }
@@ -53,22 +53,22 @@ namespace Checkers
 
                     if (possibleNewChip is not null)
                     {
-                        newCell.Pair = possibleNewChip;
+                        newCell.SetNewPair(possibleNewChip);
                         chips.Add(possibleNewChip);
                     }
 
                     board[row, column] = newCell;
 
-                    currentCellColor = SwapColor(currentCellColor);
+                    currentCellColor = GetOpponentColor(currentCellColor);
                 }
 
-                currentCellColor = SwapColor(currentCellColor);
+                currentCellColor = GetOpponentColor(currentCellColor);
             }
 
             return (ConfigureCells(board), chips);
         }
 
-        public static ColorType SwapColor(ColorType currentColor)
+        public static ColorType GetOpponentColor(ColorType currentColor)
             => currentColor == ColorType.Black ? ColorType.White : ColorType.Black;
 
         private CellComponent CreateCell(Vector3 cellPosition, ColorType color)
@@ -83,12 +83,12 @@ namespace Checkers
         {
             ChipComponent newChip = Instantiate(chipPrefab, cell.transform.position, Quaternion.identity, transform);
             newChip.SetColor(color);
-            newChip.Pair = cell;
+            newChip.SetNewPair(cell);
 
             return newChip;
         }
 
-        private IEnumerable<CellComponent> ConfigureCells(CellComponent[,] board)
+        private List<CellComponent> ConfigureCells(CellComponent[,] board)
         {
             var cells = new List<CellComponent>();
             for (var row = 0; row < rows; row++)
@@ -96,25 +96,18 @@ namespace Checkers
                 for (var column = 0; column < columns; column++)
                 {
                     var cellNeighbors = new Dictionary<NeighborType, CellComponent>();
-                    if (row - 1 >= 0 && column - 1 >= 0)
-                    {
-                        cellNeighbors.Add(NeighborType.BottomLeft, board[row - 1, column - 1]);
-                    }
                     
-                    if (row - 1 >= 0 && column + 1 < columns)
-                    {
-                        cellNeighbors.Add(NeighborType.BottomRight, board[row - 1, column + 1]);
-                    }
-                    
-                    if (row + 1 < rows && column - 1 >= 0)
-                    {
-                        cellNeighbors.Add(NeighborType.TopLeft, board[row + 1, column - 1]);
-                    }
-                    
-                    if (row + 1 < rows && column + 1 < columns)
-                    {
-                        cellNeighbors.Add(NeighborType.TopRight, board[row + 1, column + 1]);
-                    }
+                    cellNeighbors.Add(NeighborType.BottomLeft, 
+                        row - 1 >= 0 && column - 1 >= 0 ? board[row - 1, column - 1] : null);
+
+                    cellNeighbors.Add(NeighborType.BottomRight,
+                        row - 1 >= 0 && column + 1 < columns ? board[row - 1, column + 1] : null);
+
+                    cellNeighbors.Add(NeighborType.TopLeft,
+                        row + 1 < rows && column - 1 >= 0 ? board[row + 1, column - 1] : null);
+
+                    cellNeighbors.Add(NeighborType.TopRight,
+                        row + 1 < rows && column + 1 < columns ? board[row + 1, column + 1] : null);
                     
                     board[row, column].Configuration(cellNeighbors);
                     cells.Add(board[row, column]);

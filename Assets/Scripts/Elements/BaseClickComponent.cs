@@ -49,7 +49,17 @@ namespace Checkers
         /// Возвращает или устанавливает пару игровому объекту
         /// </summary>
         /// <remarks>У клеток пара - фишка, у фишек - клетка</remarks>
-        public BaseClickComponent Pair { get; set; }
+        public BaseClickComponent Pair { get; private set; }
+
+        public void SetNewPair(BaseClickComponent pair)
+        {
+            if (Pair is not null)
+            {
+                Pair.Pair = null;
+            }
+
+            Pair = pair;
+        }
 
         /// <summary>
         /// Событие клика на игровом объекте
