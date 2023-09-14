@@ -18,7 +18,7 @@ namespace Checkers
         protected override Material GetBaseMaterial()
             => Resources.Load<Material>($"Materials/{GetColor}ChipMaterial");
         
-        protected override Material GetMaterialForSelected()
+        protected override Material GetMaterialForHighlighted()
             => Resources.Load<Material>($"Materials/SelectedCellMaterial");
     }
 }

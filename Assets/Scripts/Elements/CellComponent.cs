@@ -6,14 +6,7 @@ namespace Checkers
 {
     public class CellComponent : BaseClickComponent
     {
-        private Dictionary<NeighborType, CellComponent> _neighbors;     
-
-        /// <summary>
-        /// Возвращает соседа клетки по указанному направлению
-        /// </summary>
-        /// <param name="type">Перечисление направления</param>
-        /// <returns>Клетка-сосед или null</returns>
-        public CellComponent GetNeighbors(NeighborType type) => _neighbors[type];
+        public Dictionary<NeighborType, CellComponent> Neighbors { get; private set; }
 
         public override void OnPointerEnter(PointerEventData eventData)
         {
@@ -28,7 +21,7 @@ namespace Checkers
         protected override Material GetBaseMaterial()
             => Resources.Load<Material>($"Materials/{GetColor}CellMaterial");
         
-        protected override Material GetMaterialForSelected()
+        protected override Material GetMaterialForHighlighted()
             => Resources.Load<Material>($"Materials/SelectedChipMaterial");
 
         /// <summary>
@@ -36,8 +29,8 @@ namespace Checkers
         /// </summary>
 		public void Configuration(Dictionary<NeighborType, CellComponent> neighbors)
 		{
-            if (_neighbors != null) return;
-            _neighbors = neighbors;
+            if (Neighbors != null) return;
+            Neighbors = neighbors;
 		}
 	}
 

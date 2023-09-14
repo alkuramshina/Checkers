@@ -9,7 +9,7 @@ namespace Checkers
         private MeshRenderer _mesh;
         private ColorType? _color;
 
-        public bool IsClicked { get; private set; }
+        public bool IsHighlighted { get; private set; }
 
         /// <summary>
         /// Возвращает цветовую сторону игрового объекта
@@ -27,22 +27,22 @@ namespace Checkers
         }
         
         protected abstract Material GetBaseMaterial();
-        protected abstract Material GetMaterialForSelected();
+        protected abstract Material GetMaterialForHighlighted();
 
         private void SetMaterial(Material material = null)
             => _mesh.sharedMaterial = material ? material : GetBaseMaterial();
 
-        public void SetSelected(bool selected)
+        public void SetFocused(bool focus)
         {
-            SetMaterial(selected
-                ? GetMaterialForSelected()
+            SetMaterial(focus
+                ? GetMaterialForHighlighted()
                 : GetBaseMaterial());
         }
         
-        public void SetClicked(bool selected)
+        public void SetHighlighted(bool selected)
         {
-            IsClicked = selected;
-            SetSelected(selected);
+            IsHighlighted = selected;
+            SetFocused(selected);
         }
 
         /// <summary>

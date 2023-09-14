@@ -5,28 +5,39 @@ namespace Checkers
 {
     public class GameManager: MonoBehaviour
     {
-        private static BaseClickComponent _selectedChip;
+        private static float chipMovingSpeed = 4f; 
+        
+        private static ChipComponent _selectedChip;
+
+        private static CameraMover _cameraMover;
+        private static ColorType _currentPlayerColor;
+        
         private void Awake()
         {
             var boardGenerator = FindObjectOfType<BoardGenerator>();
             var (cells, chips) = boardGenerator.CreateBoard();
             
-            SetFocusSelection(cells);
-            SetFocusSelection(chips);
+            SetFocusHandling(cells);
+            SetFocusHandling(chips);
             
+            SetClickHandling(cells);
             SetClickHandling(chips);
+
+            _cameraMover = FindObjectOfType<CameraMover>();
+
+            PassTheTurn(ColorType.White);
         }
         
-        private static void SetFocusSelection(IEnumerable<BaseClickComponent> elements)
+        private static void SetFocusHandling(IEnumerable<BaseClickComponent> elements)
         {
             foreach (var boardElement in elements)
             {
-                boardElement.OnFocusEventHandler += (component, select) =>
+                boardElement.OnFocusEventHandler += (component, focus) =>
                 {
-                    if (!component.IsClicked)
+                    if (!component.IsHighlighted)
                     {
-                        component.SetSelected(select);
-                        component.Pair?.SetSelected(select);
+                        component.SetFocused(focus);
+                        component.Pair?.SetFocused(focus);
                     }
                 };
             }
@@ -36,22 +47,95 @@ namespace Checkers
         {
             foreach (var chip in chips)
             {
-                chip.OnClickEventHandler += SetComponentClicked;
+                chip.OnClickEventHandler += SelectPlayableChip;
+            }
+        }
+        
+        private static void SetClickHandling(IEnumerable<CellComponent> cells)
+        {
+            foreach (var cell in cells)
+            {
+                cell.OnClickEventHandler += MoveChip;
             }
         }
 
-        private static void SetComponentClicked(BaseClickComponent element)
+        private static void MoveChip(BaseClickComponent cell)
         {
-            if (_selectedChip is not null)
+            if (!cell.IsHighlighted || _selectedChip is null)
             {
-                _selectedChip.SetClicked(false);
-                _selectedChip.Pair?.SetClicked(false);
+                return;
             }
 
-            element.SetClicked(true);
-            element.Pair?.SetClicked(true);
+            _selectedChip.transform.position = Vector3.Lerp(_selectedChip.transform.position,
+                cell.transform.position, chipMovingSpeed * Time.deltaTime);
+            _selectedChip.Pair = cell;
+            
+            RemoveHighlight(_selectedChip);
+            
+            _selectedChip = null;
+            
+            PassTheTurn();
+           // StartCoroutine(_cameraMover.MoveCameraToNextPov());
+        }
 
-            _selectedChip = element;
+        private static void SelectPlayableChip(BaseClickComponent chip)
+        {
+            if (chip.GetColor != _currentPlayerColor)
+            {
+                return;
+            }
+            
+            if (_selectedChip is not null)
+            {
+                RemoveHighlight(_selectedChip);
+            }
+
+            chip.SetHighlighted(true);
+
+            var cell = (CellComponent)chip.Pair;
+            cell.SetHighlighted(true);
+
+            if (chip.GetColor == ColorType.White)
+            {
+                HighlightNeighborIfExists(cell, NeighborType.TopRight);
+                HighlightNeighborIfExists(cell, NeighborType.TopLeft);
+            }
+            else
+            {
+                HighlightNeighborIfExists(cell, NeighborType.BottomLeft);
+                HighlightNeighborIfExists(cell, NeighborType.BottomRight);
+            }
+            
+            _selectedChip = (ChipComponent) chip;
+        }
+
+        private static void HighlightNeighborIfExists(CellComponent cell, NeighborType neighborType)
+        {
+            if (cell.Neighbors[neighborType] is not null 
+                && cell.Neighbors[neighborType].Pair is null)
+            {
+                cell.Neighbors[neighborType].SetHighlighted(true);
+            }
+        }
+
+        private static void RemoveHighlight(ChipComponent chip)
+        {
+            chip.SetHighlighted(false);
+                
+            var cell = (CellComponent)chip.Pair;
+            cell.SetHighlighted(false);
+            
+            foreach (var cellNeighbor in cell.Neighbors)
+            {
+                cellNeighbor.Value?.SetHighlighted(false);
+            }
+        }
+
+        private static void PassTheTurn(ColorType? color = null)
+        {
+            _currentPlayerColor = color ?? BoardGenerator.SwapColor(_currentPlayerColor);
+            Debug.Log(
+                $"Ход у {(color switch { ColorType.White => "белых", ColorType.Black => "черных", _ => "кого-то" })}.");
         }
     }
 }
