@@ -27,6 +27,8 @@ namespace Checkers
             SetClickHandling(_cells);
             SetClickHandling(_chips);
 
+            SetEatingHandling(_chips);
+
             _cameraMover = FindObjectOfType<CameraMover>();
             _currentPlayerColor = ColorType.White;
         }
@@ -35,14 +37,7 @@ namespace Checkers
         {
             foreach (var boardElement in elements)
             {
-                boardElement.OnFocusEventHandler += (component, focus) =>
-                {
-                    if (!component.IsHighlighted)
-                    {
-                        component.SetFocused(focus);
-                        component.Pair?.SetFocused(focus);
-                    }
-                };
+                boardElement.OnFocusEventHandler += FocusOn;
             }
         }
         
@@ -61,6 +56,21 @@ namespace Checkers
                 cell.OnClickEventHandler += MakeMove;
             }
         }
+        
+        private void SetEatingHandling(IEnumerable<ChipComponent> chips)
+        {
+            foreach (var chip in chips)
+            {
+                chip.OnCrossAnotherChipHandler += CheckToEat;
+            }
+        }
+
+        private void FocusOn(BaseClickComponent component, bool focused)
+        {
+            if (component.IsHighlighted) return;
+            component.SetFocused(focused);
+            component.Pair?.SetFocused(focused);
+        }
 
         private void MakeMove(BaseClickComponent nextCell)
         {
@@ -70,7 +80,6 @@ namespace Checkers
             }
 
             StartCoroutine(Move(_selectedChip, (CellComponent) nextCell));
-
             RemoveHighlight(_selectedChip);
 
             _selectedChip.SetNewPair(nextCell);
@@ -125,7 +134,7 @@ namespace Checkers
             else if (availableCell.Pair.GetColor == BoardGenerator.GetOpponentColor(_currentPlayerColor))
             {
                 var cellToMoveAfterEating = availableCell.Neighbors[neighborType];
-                if (cellToMoveAfterEating.IsEmpty)
+                if (cellToMoveAfterEating is not null && cellToMoveAfterEating.IsEmpty)
                 {
                     cellToMoveAfterEating.SetHighlighted(true);
                 }
@@ -155,12 +164,11 @@ namespace Checkers
                 yield return null;
             }
 
-            if (nextCell.IsVictorious)
+            if (chip.CheckIfAtTheEndOfBoard(nextCell))
             {
-                VictoryConditions.Hooray(chip.GetColor);
+                VictoryConditions.Hooray(chip);
+                yield break;
             }
-
-            CheckToEat(chip, nextCell);
 
             _currentPlayerColor = BoardGenerator.GetOpponentColor(_currentPlayerColor);
             Debug.Log($@"Ход у {(_currentPlayerColor switch
@@ -171,26 +179,56 @@ namespace Checkers
             yield return StartCoroutine(_cameraMover.MoveCameraToNextPov());
         }
 
-        private void CheckToEat(ChipComponent chip, CellComponent nextCell)
+        private void CheckToEat(ChipComponent chip, ChipComponent chipToEat)
         {
-            var currentCell = (CellComponent)chip.Pair;
-            if (currentCell.Neighbors.ContainsValue(nextCell))
+            // Если триггер не для фишки игрока или пересечение не с фишкой оппонента
+            if (chip.GetColor != _currentPlayerColor
+                || chip.GetColor == chipToEat.GetColor)
             {
                 return;
             }
 
-            // не next, а ту, через которую перескакиваем. надо подумать
-            var chipToBeEaten = (ChipComponent)nextCell.Pair;
+            chipToEat.SetNewPair(null);
+            _chips.Remove(chipToEat);
 
-            nextCell.SetNewPair(null);
-            _chips.Remove(chipToBeEaten);
-
-            if (!_chips.CheckIfAnyAlive(chipToBeEaten.GetColor))
+            if (!_chips.CheckIfAnyAlive(chipToEat.GetColor))
             {
-                VictoryConditions.Hooray(chip.GetColor);
+                VictoryConditions.Hooray(chip);
             }
 
-            Destroy(chipToBeEaten);
+            chipToEat.OnFocusEventHandler -= FocusOn;
+            chipToEat.OnClickEventHandler -= SelectPlayableChip;
+            chipToEat.OnCrossAnotherChipHandler -= CheckToEat;
+            
+            Destroy(chipToEat.gameObject);
+        }
+
+        private void OnDestroy()
+        {
+            foreach (var boardElement in _chips)
+            {
+                boardElement.OnFocusEventHandler -= FocusOn;
+            }
+            
+            foreach (var boardElement in _cells)
+            {
+                boardElement.OnFocusEventHandler -= FocusOn;
+            }
+        
+            foreach (var chip in _chips)
+            {
+                chip.OnClickEventHandler -= SelectPlayableChip;
+            }
+        
+            foreach (var cell in _cells)
+            {
+                cell.OnClickEventHandler -= MakeMove;
+            }
+        
+            foreach (var chip in _chips)
+            {
+                chip.OnCrossAnotherChipHandler -= CheckToEat;
+            }
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Checkers
     {
         public Dictionary<NeighborType, CellComponent> Neighbors { get; private set; }
         public bool IsEmpty => Pair is null;
-        public bool IsVictorious { get; private set; }
+        public ColorType? IsVictoriousFor { get; private set; }
 
         public override void OnPointerEnter(PointerEventData eventData)
         {
@@ -33,9 +33,12 @@ namespace Checkers
 		{
             if (Neighbors != null) return;
             Neighbors = neighbors;
-            IsVictorious = neighbors[NeighborType.TopLeft] is null && neighbors[NeighborType.TopRight] is null
-                           || neighbors[NeighborType.BottomLeft] is null &&
-                           neighbors[NeighborType.BottomRight] is null;
+            IsVictoriousFor = neighbors[NeighborType.TopLeft] is null && neighbors[NeighborType.TopRight] is null
+                ? ColorType.White
+                : neighbors[NeighborType.BottomLeft] is null &&
+                  neighbors[NeighborType.BottomRight] is null
+                    ? ColorType.Black
+                    : null;
         }
 	}
 

@@ -6,14 +6,23 @@ namespace Checkers
 {
     public static class VictoryConditions
     {
+        public static bool GameIsOver { get; private set; }
         public static bool CheckIfAnyAlive(this IEnumerable<ChipComponent> chips,
             ColorType playerColor)
             => chips.Any(x => x.GetColor == playerColor);
 
-        public static void Hooray(ColorType playerColor)
-            => Debug.Log($@"Победа за {(playerColor switch
-                { ColorType.White => "белыми",
-                    ColorType.Black => "черными",
-                    _ => "кем-то" })}");
+        public static bool CheckIfAtTheEndOfBoard(this ChipComponent chip,
+            CellComponent cell)
+            => cell.IsVictoriousFor == chip.GetColor;
+
+        public static void Hooray(ChipComponent playerChip)
+        {
+            GameIsOver = true;
+
+            Debug.Log($@"Победа за {(playerChip.GetColor switch
+            { ColorType.White => "белыми",
+                ColorType.Black => "черными",
+                _ => "кем-то" })}!");
+        }
     }
 }
