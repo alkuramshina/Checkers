@@ -48,6 +48,7 @@
      <Compile Include="Assets\Scripts\Elements\BaseClickComponent.cs" />
      <Compile Include="Assets\Scripts\Elements\CellComponent.cs" />
      <Compile Include="Assets\Scripts\Camera\CameraMover.cs" />
+     <Compile Include="Assets\Scripts\Elements\ChipCrosser.cs" />
      <Folder Include="Assets" />
      <Folder Include="Assets\Scripts\Elements" />
      <Folder Include="Assets\Scenes" />
