@@ -1,20 +1,19 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Checkers.Files
 {
-    public class FileManager : IFileManager
+    public class FileSaveDataManager : ISaveDataManager
     {
         private readonly string _fileName;
 
-        public FileManager(string fileName)
+        public FileSaveDataManager(string fileName)
         {
             _fileName = fileName.EndsWith(".txt") ? fileName : $"{fileName}.txt";
         }
 
-        public async Task WriteLineAsync(string data)
+        public async Task WriteActionAsync(string data)
         {
             await using var fileStream = new FileStream(_fileName, FileMode.Append);
             await using var streamWriter = new StreamWriter(fileStream);
@@ -22,20 +21,27 @@ namespace Checkers.Files
             await streamWriter.WriteLineAsync(data);
         }
 
-        public string[] ReadAllLines()
+        public Stack<string> ReadActions()
         {
+            var actionList = new Stack<string>();
+            
             using var fileStream = new FileStream(_fileName, FileMode.Open);
             using var streamReader = new StreamReader(fileStream);
 
-            var builder = new StringBuilder();
-
             while (!streamReader.EndOfStream)
             {
-                builder.AppendLine(streamReader.ReadLine());
+                actionList.Push(streamReader.ReadLine());
             }
 
-            return builder.ToString()
-                .Split(Environment.NewLine);
+            return actionList;
+        }
+
+        public void ClearSave()
+        {
+            if (File.Exists(_fileName))
+            {
+                File.Delete(_fileName);
+            }
         }
     }
 }

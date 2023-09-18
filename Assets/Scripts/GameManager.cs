@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Checkers
 {
-    public class GameManager: MonoBehaviour
+    public class GameManager: MonoBehaviour, IObservable
     {
         private const float ChipMovingSpeed = 4f;
 
@@ -15,7 +15,7 @@ namespace Checkers
         private ColorType _currentPlayerColor;
 
         private List<ChipComponent> _chips;
-        private List<CellComponent> _cells;
+        private CellComponent[,] _cells;
 
         private IObserver _observer;
 
@@ -26,47 +26,32 @@ namespace Checkers
             var boardGenerator = FindObjectOfType<BoardGenerator>();
             (_cells, _chips) = boardGenerator.CreateBoard();
             
-            SetFocusHandling(_cells);
-            SetFocusHandling(_chips);
-            
-            SetClickHandling(_cells);
-            SetClickHandling(_chips);
-
-            SetEatingHandling(_chips);
+            SetHandlers(_cells);
+            SetHandlers(_chips);
 
             _cameraMover = FindObjectOfType<CameraMover>();
             _currentPlayerColor = ColorType.White;
         }
         
-        private void SetFocusHandling(IEnumerable<BaseClickComponent> elements)
+        private void SetHandlers(CellComponent[,] cells)
         {
-            foreach (var boardElement in elements)
+            for (var i = 0; i < cells.GetLength(0); i++)
             {
-                boardElement.OnFocusEventHandler += FocusOn;
+                for (var j = 0; j < cells.GetLength(1); j++)
+                {
+                    cells[i,j].OnFocusEventHandler += FocusOn;
+                    cells[i,j].OnClickEventHandler += MakeMove;
+                }
             }
         }
         
-        private void SetClickHandling(IEnumerable<ChipComponent> chips)
+        private void SetHandlers(IEnumerable<ChipComponent> chips)
         {
             foreach (var chip in chips)
             {
+                chip.OnFocusEventHandler += FocusOn;
                 chip.OnClickEventHandler += SelectPlayableChip;
-            }
-        }
-        
-        private void SetClickHandling(IEnumerable<CellComponent> cells)
-        {
-            foreach (var cell in cells)
-            {
-                cell.OnClickEventHandler += MakeMove;
-            }
-        }
-        
-        private void SetEatingHandling(IEnumerable<ChipComponent> chips)
-        {
-            foreach (var chip in chips)
-            {
-                chip.OnCrossAnotherChipHandler += CheckToEat;
+                chip.OnCrossAnotherChipHandler += Eat;
             }
         }
 
@@ -99,6 +84,12 @@ namespace Checkers
             _selectedChip = null;
         }
 
+        public void MoveFromTo(BoardCoordinate origin, BoardCoordinate destination)
+        {
+            var nextCell = _cells[destination.Row, destination.Column];
+            MakeMove(nextCell);
+        }
+
         private void SelectPlayableChip(BaseClickComponent chip)
         {
             if (chip.GetColor != _currentPlayerColor)
@@ -129,6 +120,12 @@ namespace Checkers
             
             _selectedChip = (ChipComponent) chip;
             _observer?.Log(ActionType.Clicked, _currentPlayerColor, cell.Coordinate);
+        }
+
+        public void ClickOn(BoardCoordinate coordinate)
+        {
+            var chipToSelect = (ChipComponent) _cells[coordinate.Row, coordinate.Column].Pair;
+            SelectPlayableChip(chipToSelect);
         }
 
         private void HighlightNeighborIfAvailable(CellComponent currentCell, NeighborType neighborType)
@@ -178,7 +175,7 @@ namespace Checkers
 
             if (chip.CheckIfAtTheEndOfBoard(nextCell))
             {
-                VictoryConditions.Hooray(chip);
+                VictoryConditions.Hooray(chip.GetColor);
                 yield break;
             }
 
@@ -191,31 +188,36 @@ namespace Checkers
             yield return StartCoroutine(_cameraMover.MoveCameraToNextPov());
         }
 
-        private void CheckToEat(ChipComponent chip, ChipComponent chipToEat)
+        private void Eat(ChipComponent chipToEat)
         {
             // Если триггер не для фишки игрока или пересечение не с фишкой оппонента
-            if (chip.GetColor != _currentPlayerColor
-                || chip.GetColor == chipToEat.GetColor)
+            if (_currentPlayerColor == chipToEat.GetColor)
             {
                 return;
             }
 
-            var cellToEatOn = (CellComponent)chipToEat.Pair;
-            _observer?.Log(ActionType.Ate, _currentPlayerColor, cellToEatOn.Coordinate);
-
+            var cellToEatOn = (CellComponent)chipToEat.Pair; 
             chipToEat.SetNewPair(null);
             _chips.Remove(chipToEat);
 
             if (!_chips.CheckIfAnyAlive(chipToEat.GetColor))
             {
-                VictoryConditions.Hooray(chip);
+                VictoryConditions.Hooray(_currentPlayerColor);
             }
 
             chipToEat.OnFocusEventHandler -= FocusOn;
             chipToEat.OnClickEventHandler -= SelectPlayableChip;
-            chipToEat.OnCrossAnotherChipHandler -= CheckToEat;
+            chipToEat.OnCrossAnotherChipHandler -= Eat;
             
             Destroy(chipToEat.gameObject);
+            
+            _observer?.Log(ActionType.Ate, _currentPlayerColor, cellToEatOn.Coordinate);
+        }
+
+        public void EatOn(BoardCoordinate coordinate)
+        {
+            var chipToEat = (ChipComponent)_cells[coordinate.Row, coordinate.Column].Pair;
+            Eat(chipToEat);
         }
 
         private void OnDestroy()
@@ -242,7 +244,7 @@ namespace Checkers
         
             foreach (var chip in _chips)
             {
-                chip.OnCrossAnotherChipHandler -= CheckToEat;
+                chip.OnCrossAnotherChipHandler -= Eat;
             }
         }
     }

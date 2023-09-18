@@ -15,11 +15,11 @@ namespace Checkers
             CellComponent cell)
             => cell.IsVictoriousFor == chip.GetColor;
 
-        public static void Hooray(ChipComponent playerChip)
+        public static void Hooray(ColorType playerColor)
         {
             GameIsOver = true;
 
-            Debug.Log($@"Победа за {(playerChip.GetColor switch
+            Debug.Log($@"Победа за {(playerColor switch
             { ColorType.White => "белыми",
                 ColorType.Black => "черными",
                 _ => "кем-то" })}!");

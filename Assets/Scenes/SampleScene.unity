@@ -172,7 +172,7 @@ MonoBehaviour:
   rows: 8
   columns: 8
   startingChipRows: 3
-  playableCellColor: 1
+  playableCellColor: 0
   cellPrefab: {fileID: -6800362590594016195, guid: 08c7401a6e812b3449fe6276b95a81cb, type: 3}
   chipPrefab: {fileID: 8471607453032184680, guid: b8edbf781550c4a41ac1f7e775c70efd, type: 3}
 --- !u!114 &74868394
@@ -199,6 +199,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d4e58c3635d406f88328887fc836bc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  replayModeOn: 0
+  replayMoveDelay: 1
 --- !u!1 &124304900
 GameObject:
   m_ObjectHideFlags: 0

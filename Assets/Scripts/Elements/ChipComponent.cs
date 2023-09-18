@@ -9,7 +9,7 @@ namespace Checkers
         
         public void OnCrossAnotherChip(ChipComponent otherChip)
         {
-            OnCrossAnotherChipHandler?.Invoke(this, otherChip);
+            OnCrossAnotherChipHandler?.Invoke(otherChip);
         }
         
         public override void OnPointerEnter(PointerEventData eventData)
@@ -29,5 +29,5 @@ namespace Checkers
             => Resources.Load<Material>($"Materials/SelectedCellMaterial");
     }
     
-    public delegate void CrossAnotherChipHandler(ChipComponent playerChip, ChipComponent crossedChip);
+    public delegate void CrossAnotherChipHandler(ChipComponent crossedChip);
 }
