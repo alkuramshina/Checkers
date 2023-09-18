@@ -109,7 +109,7 @@ namespace Checkers
                     cellNeighbors.Add(NeighborType.TopRight,
                         row + 1 < rows && column + 1 < columns ? board[row + 1, column + 1] : null);
 
-                    board[row, column].Configuration(row + 1, column + 1, cellNeighbors);
+                    board[row, column].Configuration(row, column, cellNeighbors);
                     cells.Add(board[row, column]);
                 }
             }
