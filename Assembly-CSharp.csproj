@@ -47,8 +47,10 @@
      <Compile Include="Assets\Scripts\VictoryConditions.cs" />
      <Compile Include="Assets\Scripts\Elements\BaseClickComponent.cs" />
      <Compile Include="Assets\Scripts\Elements\CellComponent.cs" />
-     <Compile Include="Assets\Scripts\Camera\CameraMover.cs" />
      <Compile Include="Assets\Scripts\Elements\ChipCrosser.cs" />
+     <Compile Include="Assets\Scripts\Camera\CameraMover.cs" />
+     <Compile Include="Assets\Scripts\Files\IFileManager.cs" />
+     <Compile Include="Assets\Scripts\Files\FileManager.cs" />
      <Folder Include="Assets" />
      <Folder Include="Assets\Scripts\Elements" />
      <Folder Include="Assets\Scenes" />
@@ -56,6 +58,7 @@
      <Folder Include="Assets\Scripts\Camera" />
      <Folder Include="Assets\Scripts" />
      <Folder Include="Assets\Resources\Materials" />
+     <Folder Include="Assets\Scripts\Files" />
      <Folder Include="Assets\Resources\Prefabs" />
      <Folder Include="Assets\Scripts\Board" />
      <Reference Include="UnityEngine">
