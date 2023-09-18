@@ -24,7 +24,7 @@ namespace Checkers.Files
 
         public string[] ReadAllLines()
         {
-            using var fileStream = new FileStream(_fileName + ".txt", FileMode.Open);
+            using var fileStream = new FileStream(_fileName, FileMode.Open);
             using var streamReader = new StreamReader(fileStream);
 
             var builder = new StringBuilder();

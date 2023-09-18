@@ -6,8 +6,9 @@
         public int Column { get; } = Column;
     }
 
-    public static class StringExtensions
+    public static class BoardCoordinateExtensions
     {
+        public const string BoardCoordinatePattern = @"(\d+),(\d+)";
         public static string ToLogString(this BoardCoordinate coordinate)
             => $"[{coordinate.Row},{coordinate.Column}]";
     }

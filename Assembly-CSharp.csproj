@@ -51,7 +51,7 @@
      <Compile Include="Assets\Scripts\Camera\CameraMover.cs" />
      <Compile Include="Assets\Scripts\Files\IFileManager.cs" />
      <Compile Include="Assets\Scripts\Files\FileManager.cs" />
-     <Compile Include="Assets\Scripts\Elements\BoardCoordinate.cs" />
+     <Compile Include="Assets\Scripts\Board\BoardCoordinate.cs" />
      <Compile Include="Assets\Scripts\Observer\IObserver.cs" />
      <Compile Include="Assets\Scripts\Observer\Observer.cs" />
      <Folder Include="Assets" />

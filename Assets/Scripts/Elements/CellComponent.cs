@@ -33,9 +33,14 @@ namespace Checkers
 		public void Configuration(int row, int column,
             Dictionary<NeighborType, CellComponent> neighbors)
 		{
-            if (Neighbors != null) return;
+            if (Neighbors != null)
+            {
+                return;
+            }
+            
             Neighbors = neighbors;
             Coordinate = new BoardCoordinate(row, column);
+            
             IsVictoriousFor = neighbors[NeighborType.TopLeft] is null && neighbors[NeighborType.TopRight] is null
                 ? ColorType.White
                 : neighbors[NeighborType.BottomLeft] is null &&
@@ -67,6 +72,4 @@ namespace Checkers
         /// </summary>
         BottomRight
     }
-    
-    
 }
