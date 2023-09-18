@@ -34,7 +34,6 @@ namespace Checkers.Files
             }
 
             actionList.Reverse();
-            
             return new Stack<string>(actionList);
         }
 

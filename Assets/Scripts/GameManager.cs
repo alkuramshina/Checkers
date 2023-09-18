@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Checkers.Observer;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Checkers
 {
@@ -18,6 +19,7 @@ namespace Checkers
         private CellComponent[,] _cells;
 
         private IObserver _observer;
+        private PhysicsRaycaster _physicsRaycaster;
 
         private void Awake()
         {
@@ -29,6 +31,7 @@ namespace Checkers
             SetHandlers(_cells);
             SetHandlers(_chips);
 
+            _physicsRaycaster = FindObjectOfType<PhysicsRaycaster>();
             _cameraMover = FindObjectOfType<CameraMover>();
             _currentPlayerColor = ColorType.White;
         }
@@ -167,7 +170,7 @@ namespace Checkers
 
             if (chip.CheckIfAtTheEndOfBoard(nextCell))
             {
-                VictoryConditions.Hooray(chip.GetColor);
+                GameIsOver();
                 yield break;
             }
 
@@ -182,6 +185,12 @@ namespace Checkers
 
         private void Eat(ChipComponent chipToEat)
         {
+            // уже съели
+            if (chipToEat is null)
+            {
+                return;
+            }
+            
             // Если триггер не для фишки игрока или пересечение не с фишкой оппонента
             if (_currentPlayerColor == chipToEat.GetColor)
             {
@@ -194,7 +203,7 @@ namespace Checkers
 
             if (!_chips.CheckIfAnyAlive(chipToEat.GetColor))
             {
-                VictoryConditions.Hooray(_currentPlayerColor);
+                GameIsOver();
             }
 
             chipToEat.OnFocusEventHandler -= FocusOn;
@@ -204,6 +213,12 @@ namespace Checkers
             Destroy(chipToEat.gameObject);
             
             _observer?.Log(ActionType.Ate, _currentPlayerColor, cellToEatOn.Coordinate);
+        }
+
+        private void GameIsOver()
+        {
+            VictoryConditions.Hooray(_currentPlayerColor);
+            _physicsRaycaster.enabled = false;
         }
 
         private void OnDestroy()
