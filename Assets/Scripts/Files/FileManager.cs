@@ -11,13 +11,7 @@ namespace Checkers.Files
 
         public FileManager(string fileName)
         {
-            _fileName = $"{fileName}.txt";
-
-            // TODO: подумать, как будет перезаписываться файл
-            if (!File.Exists(_fileName))
-            {
-                File.Create(_fileName);
-            }
+            _fileName = fileName.EndsWith(".txt") ? fileName : $"{fileName}.txt";
         }
 
         public async Task WriteLineAsync(string data)

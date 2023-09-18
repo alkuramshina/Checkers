@@ -11,7 +11,7 @@ namespace Checkers.Observer
         // Научите меня DI в Unity~, будем считать тут место для внедрения нужного нам обработчика записи и чтения
         private void Awake()
         {
-            _fileManager = new FileManager("Data/Save");
+            _fileManager = new FileManager("DataSave.txt");
         }
 
         public async Task Log(ActionType actionType, ColorType playerColor, 

@@ -9,6 +9,6 @@
     public static class StringExtensions
     {
         public static string ToLogString(this BoardCoordinate coordinate)
-            => $"{coordinate.Row},{coordinate.Column}";
+            => $"[{coordinate.Row},{coordinate.Column}]";
     }
 }
