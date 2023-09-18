@@ -20,7 +20,7 @@ namespace Checkers.Files
             }
         }
 
-        public async Task WriteLine(string data)
+        public async Task WriteLineAsync(string data)
         {
             await using var fileStream = new FileStream(_fileName, FileMode.Append);
             await using var streamWriter = new StreamWriter(fileStream);

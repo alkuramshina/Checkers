@@ -5,7 +5,7 @@ namespace Checkers.Files
     // Всегда можно добавить реализацию не в физической файловой системе
     public interface IFileManager
     {
-        Task WriteLine(string data);
+        Task WriteLineAsync(string data);
         string[] ReadAllLines();
     }
 }

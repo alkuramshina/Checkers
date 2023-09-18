@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Checkers.Observer;
 using UnityEngine;
 
 namespace Checkers
@@ -16,8 +17,12 @@ namespace Checkers
         private List<ChipComponent> _chips;
         private List<CellComponent> _cells;
 
+        private IObserver _observer;
+
         private void Awake()
         {
+            TryGetComponent(out _observer);
+            
             var boardGenerator = FindObjectOfType<BoardGenerator>();
             (_cells, _chips) = boardGenerator.CreateBoard();
             
@@ -79,7 +84,13 @@ namespace Checkers
                 return;
             }
 
-            StartCoroutine(Move(_selectedChip, (CellComponent) nextCell));
+            var nextCellComponent = (CellComponent)nextCell;
+            StartCoroutine(Move(_selectedChip, nextCellComponent));
+
+            var currentCell = (CellComponent)_selectedChip.Pair;
+            _observer?.Log(ActionType.Moved, _currentPlayerColor, currentCell.Coordinate, 
+                nextCellComponent.Coordinate);
+            
             RemoveHighlight(_selectedChip);
 
             _selectedChip.SetNewPair(nextCell);
@@ -117,6 +128,7 @@ namespace Checkers
             }
             
             _selectedChip = (ChipComponent) chip;
+            _observer?.Log(ActionType.Clicked, _currentPlayerColor, cell.Coordinate);
         }
 
         private void HighlightNeighborIfAvailable(CellComponent currentCell, NeighborType neighborType)
@@ -187,6 +199,9 @@ namespace Checkers
             {
                 return;
             }
+
+            var cellToEatOn = (CellComponent)chipToEat.Pair;
+            _observer?.Log(ActionType.Ate, _currentPlayerColor, cellToEatOn.Coordinate);
 
             chipToEat.SetNewPair(null);
             _chips.Remove(chipToEat);
