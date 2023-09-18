@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Checkers
 {
-    public class GameManager: MonoBehaviour, IObservable
+    public partial class GameManager: MonoBehaviour
     {
         private const float ChipMovingSpeed = 4f;
 
@@ -57,7 +57,11 @@ namespace Checkers
 
         private void FocusOn(BaseClickComponent component, bool focused)
         {
-            if (component.IsHighlighted) return;
+            if (component.IsHighlighted)
+            {
+                return;
+            }
+            
             component.SetFocused(focused);
             component.Pair?.SetFocused(focused);
         }
@@ -82,12 +86,6 @@ namespace Checkers
             nextCell.SetNewPair(_selectedChip);
             
             _selectedChip = null;
-        }
-
-        public void MoveFromTo(BoardCoordinate origin, BoardCoordinate destination)
-        {
-            var nextCell = _cells[destination.Row, destination.Column];
-            MakeMove(nextCell);
         }
 
         private void SelectPlayableChip(BaseClickComponent chip)
@@ -120,12 +118,6 @@ namespace Checkers
             
             _selectedChip = (ChipComponent) chip;
             _observer?.Log(ActionType.Clicked, _currentPlayerColor, cell.Coordinate);
-        }
-
-        public void ClickOn(BoardCoordinate coordinate)
-        {
-            var chipToSelect = (ChipComponent) _cells[coordinate.Row, coordinate.Column].Pair;
-            SelectPlayableChip(chipToSelect);
         }
 
         private void HighlightNeighborIfAvailable(CellComponent currentCell, NeighborType neighborType)
@@ -212,12 +204,6 @@ namespace Checkers
             Destroy(chipToEat.gameObject);
             
             _observer?.Log(ActionType.Ate, _currentPlayerColor, cellToEatOn.Coordinate);
-        }
-
-        public void EatOn(BoardCoordinate coordinate)
-        {
-            var chipToEat = (ChipComponent)_cells[coordinate.Row, coordinate.Column].Pair;
-            Eat(chipToEat);
         }
 
         private void OnDestroy()

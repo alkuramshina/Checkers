@@ -54,6 +54,9 @@
      <Compile Include="Assets\Scripts\Board\BoardCoordinate.cs" />
      <Compile Include="Assets\Scripts\Observer\IObserver.cs" />
      <Compile Include="Assets\Scripts\Observer\Observer.cs" />
+     <Compile Include="Assets\Scripts\GameManager.Observable.cs" />
+     <Compile Include="Assets\Scripts\Observer\ActionType.cs" />
+     <Compile Include="Assets\Scripts\Observer\IObservable.cs" />
      <Folder Include="Assets" />
      <Folder Include="Assets\Scripts\Elements" />
      <Folder Include="Assets\Scenes" />

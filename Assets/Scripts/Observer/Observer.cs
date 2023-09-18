@@ -25,7 +25,10 @@ namespace Checkers.Observer
             _saveDataManager = new FileSaveDataManager("DataSave.txt");
             _observable = GetComponent<IObservable>();
             _raycaster = FindObjectOfType<PhysicsRaycaster>();
+        }
 
+        private void Start()
+        {
             if (!replayModeOn)
             {
                 _raycaster.enabled = true;
@@ -39,7 +42,7 @@ namespace Checkers.Observer
                 StartCoroutine(Replay());
             }
         }
-
+        
         // White player clicked on 1,1
         // White player moved from 1,1 to 2,2
         // White player ate on 2,2
@@ -70,9 +73,11 @@ namespace Checkers.Observer
 
         private IEnumerator Replay()
         {
+            yield return new WaitForSeconds(replayMoveDelay);
+            
             while (_actions.Count > 0)
             {
-                yield return StartCoroutine(Replay(_actions.Pop()));
+                Replay(_actions.Pop());
                 yield return new WaitForSeconds(replayMoveDelay);
             }
             
@@ -80,29 +85,14 @@ namespace Checkers.Observer
             replayModeOn = false;
         }
 
-        private IEnumerator Replay(string actionData)
+        private void Replay(string actionData)
         {
             var (originCoordinate, destinationCoordinate) = GetCoordinates(actionData);
             var actionType = GetActionType(actionData);
 
             Debug.Log(actionData);
-
-            switch (actionType)
-            {
-                case ActionType.Clicked:
-                    _observable.ClickOn(originCoordinate);
-                    break;
-                case ActionType.Moved:
-                    _observable.MoveFromTo(originCoordinate, destinationCoordinate);
-                    break;
-                case ActionType.Ate:
-                    _observable.EatOn(originCoordinate);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
             
-            yield return null;
+            _observable.Action(actionType, originCoordinate, destinationCoordinate);
         }
 
         private static (BoardCoordinate, BoardCoordinate) GetCoordinates(string actionData)
@@ -117,8 +107,9 @@ namespace Checkers.Observer
                 return (originCoordinate, null);
             }
 
-            var destinationCoordinate = new BoardCoordinate(int.Parse(coordinatesMatch[1].Groups[1].Value),
-                int.Parse(coordinatesMatch[1].Groups[2].Value));
+            var destinationCoordinate = (coordinatesMatch[1].Groups[1].Value,
+                    coordinatesMatch[1].Groups[2].Value)
+                .ToBoardCoordinate();
 
             return (originCoordinate, destinationCoordinate);
         }

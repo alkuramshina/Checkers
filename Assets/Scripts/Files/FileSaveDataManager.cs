@@ -23,17 +23,19 @@ namespace Checkers.Files
 
         public Stack<string> ReadActions()
         {
-            var actionList = new Stack<string>();
+            var actionList = new List<string>();
             
             using var fileStream = new FileStream(_fileName, FileMode.Open);
             using var streamReader = new StreamReader(fileStream);
 
             while (!streamReader.EndOfStream)
             {
-                actionList.Push(streamReader.ReadLine());
+                actionList.Add(streamReader.ReadLine());
             }
 
-            return actionList;
+            actionList.Reverse();
+            
+            return new Stack<string>(actionList);
         }
 
         public void ClearSave()

@@ -65,7 +65,9 @@ namespace Checkers
                 currentCellColor = GetOpponentColor(currentCellColor);
             }
 
-            return (ConfigureCells(board), chips);
+            ConfigureCells(board);
+
+            return (board, chips);
         }
 
         public static ColorType GetOpponentColor(ColorType currentColor)
@@ -88,7 +90,7 @@ namespace Checkers
             return newChip;
         }
 
-        private CellComponent[,] ConfigureCells(CellComponent[,] board)
+        private void ConfigureCells(CellComponent[,] board)
         {
             for (var row = 0; row < rows; row++)
             {
@@ -117,8 +119,6 @@ namespace Checkers
                     board[row, column].Configuration(row, column, cellNeighbors);
                 }
             }
-
-            return board;
         }
     }
 }
