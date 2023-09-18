@@ -9,6 +9,7 @@ namespace Checkers
         public Dictionary<NeighborType, CellComponent> Neighbors { get; private set; }
         public bool IsEmpty => Pair is null;
         public ColorType? IsVictoriousFor { get; private set; }
+        public BoardCoordinate Coordinate { get; private set; }
 
         public override void OnPointerEnter(PointerEventData eventData)
         {
@@ -29,10 +30,17 @@ namespace Checkers
         /// <summary>
         /// Конфигурирование связей клеток
         /// </summary>
-		public void Configuration(Dictionary<NeighborType, CellComponent> neighbors)
+		public void Configuration(int row, int column,
+            Dictionary<NeighborType, CellComponent> neighbors)
 		{
-            if (Neighbors != null) return;
+            if (Neighbors != null)
+            {
+                return;
+            }
+            
             Neighbors = neighbors;
+            Coordinate = new BoardCoordinate(row, column);
+            
             IsVictoriousFor = neighbors[NeighborType.TopLeft] is null && neighbors[NeighborType.TopRight] is null
                 ? ColorType.White
                 : neighbors[NeighborType.BottomLeft] is null &&
@@ -40,7 +48,7 @@ namespace Checkers
                     ? ColorType.Black
                     : null;
         }
-	}
+    }
 
     /// <summary>
     /// Тип соседа клетки

@@ -47,8 +47,16 @@
      <Compile Include="Assets\Scripts\VictoryConditions.cs" />
      <Compile Include="Assets\Scripts\Elements\BaseClickComponent.cs" />
      <Compile Include="Assets\Scripts\Elements\CellComponent.cs" />
-     <Compile Include="Assets\Scripts\Camera\CameraMover.cs" />
      <Compile Include="Assets\Scripts\Elements\ChipCrosser.cs" />
+     <Compile Include="Assets\Scripts\Camera\CameraMover.cs" />
+     <Compile Include="Assets\Scripts\Files\ISaveDataManager.cs" />
+     <Compile Include="Assets\Scripts\Files\FileSaveDataManager.cs" />
+     <Compile Include="Assets\Scripts\Board\BoardCoordinate.cs" />
+     <Compile Include="Assets\Scripts\Observer\IObserver.cs" />
+     <Compile Include="Assets\Scripts\Observer\Observer.cs" />
+     <Compile Include="Assets\Scripts\GameManager.Observable.cs" />
+     <Compile Include="Assets\Scripts\Observer\ActionType.cs" />
+     <Compile Include="Assets\Scripts\Observer\IObservable.cs" />
      <Folder Include="Assets" />
      <Folder Include="Assets\Scripts\Elements" />
      <Folder Include="Assets\Scenes" />
@@ -56,6 +64,8 @@
      <Folder Include="Assets\Scripts\Camera" />
      <Folder Include="Assets\Scripts" />
      <Folder Include="Assets\Resources\Materials" />
+     <Folder Include="Assets\Scripts\Observer" />
+     <Folder Include="Assets\Scripts\Files" />
      <Folder Include="Assets\Resources\Prefabs" />
      <Folder Include="Assets\Scripts\Board" />
      <Reference Include="UnityEngine">

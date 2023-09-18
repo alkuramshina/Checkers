@@ -18,7 +18,7 @@ namespace Checkers
         private float CellOffsetX => cellPrefab.transform.localScale.x / 2;
         private float CellOffsetZ => cellPrefab.transform.localScale.z / 2;
 
-        public (List<CellComponent>, List<ChipComponent>) CreateBoard()
+        public (CellComponent[,], List<ChipComponent>) CreateBoard()
         {
             if (FindAnyObjectByType<CellComponent>() is not null)
             {
@@ -65,7 +65,9 @@ namespace Checkers
                 currentCellColor = GetOpponentColor(currentCellColor);
             }
 
-            return (ConfigureCells(board), chips);
+            ConfigureCells(board);
+
+            return (board, chips);
         }
 
         public static ColorType GetOpponentColor(ColorType currentColor)
@@ -88,33 +90,35 @@ namespace Checkers
             return newChip;
         }
 
-        private List<CellComponent> ConfigureCells(CellComponent[,] board)
+        private void ConfigureCells(CellComponent[,] board)
         {
-            var cells = new List<CellComponent>();
             for (var row = 0; row < rows; row++)
             {
                 for (var column = 0; column < columns; column++)
                 {
-                    var cellNeighbors = new Dictionary<NeighborType, CellComponent>();
-                    
-                    cellNeighbors.Add(NeighborType.BottomLeft, 
-                        row - 1 >= 0 && column - 1 >= 0 ? board[row - 1, column - 1] : null);
+                    var cellNeighbors = new Dictionary<NeighborType, CellComponent>
+                    {
+                        {
+                            NeighborType.BottomLeft,
+                            row - 1 >= 0 && column - 1 >= 0 ? board[row - 1, column - 1] : null
+                        },
+                        {
+                            NeighborType.BottomRight,
+                            row - 1 >= 0 && column + 1 < columns ? board[row - 1, column + 1] : null
+                        },
+                        {
+                            NeighborType.TopLeft,
+                            row + 1 < rows && column - 1 >= 0 ? board[row + 1, column - 1] : null
+                        },
+                        {
+                            NeighborType.TopRight,
+                            row + 1 < rows && column + 1 < columns ? board[row + 1, column + 1] : null
+                        }
+                    };
 
-                    cellNeighbors.Add(NeighborType.BottomRight,
-                        row - 1 >= 0 && column + 1 < columns ? board[row - 1, column + 1] : null);
-
-                    cellNeighbors.Add(NeighborType.TopLeft,
-                        row + 1 < rows && column - 1 >= 0 ? board[row + 1, column - 1] : null);
-
-                    cellNeighbors.Add(NeighborType.TopRight,
-                        row + 1 < rows && column + 1 < columns ? board[row + 1, column + 1] : null);
-                    
-                    board[row, column].Configuration(cellNeighbors);
-                    cells.Add(board[row, column]);
+                    board[row, column].Configuration(row, column, cellNeighbors);
                 }
             }
-
-            return cells;
         }
     }
 }
